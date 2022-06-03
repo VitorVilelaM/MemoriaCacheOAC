@@ -1,6 +1,7 @@
 package pck;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Cache {
 	private int tamanhoCache;
@@ -20,75 +21,125 @@ public class Cache {
 	public void Direto() {
 
 		int tag = (int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) + 1 - logLinha - 2;
-		
+
 		String[] posicoes = new String[nLinhas];
 		String valorTag;
 		String valorLinha;
 		int endereco = 0;
-		int lCache, count = 0, acerto = 0;
+		int lCache, count = 0, missCache = 0, hitCache = 0;
 		double total;
 
 		ArrayList<String> teste = FileManager.stringReader("./dados/teste_1.txt");
 		for (String linha : teste) {
 			int acesso = Integer.parseInt(linha);
-			
-			endereco = tag+logLinha+2;
-			
+
+			endereco = tag + logLinha + 2;
+
 			int bin[] = intToBinary(acesso, endereco);
-			
+
 			String stringBin = intToBinaryString(acesso, endereco);
 
 			valorTag = stringBin.substring(0, tag);
-			valorLinha = stringBin.substring(tag, logLinha+tag);
-			
-			System.out.println(valorLinha);
-			
+			valorLinha = stringBin.substring(tag, logLinha + tag);
+
 			lCache = Integer.parseInt(valorLinha, 2);
 			
 			if (posicoes[lCache] == null) {
 				posicoes[lCache] = valorTag;
-	
+
 			} else if (posicoes[lCache].equals(valorTag)) {
-				acerto++;
+				hitCache++;
 			} else {
 				posicoes[lCache] = valorTag;
+				missCache++;
 			}
 			count++;
 		}
-		total = (acerto*100)/count;
+		total = (hitCache * 100) / count;
 		System.out.println("Acessos: " + count);
+		System.out.println("MissCache: " + missCache);
 		System.out.println("Precisao: " + total + "%");
-		System.out.println("HitCache: " + acerto);
 	}
 
-	public void Associativo() {
-		int tag = tamanhoMemoria - 2;
+	public void Associativo(int op) {
+		int tag = (int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) - 1;
+
 		String[] posicoes = new String[nLinhas];
 		String valorTag;
-		int bloco, lCache, count = 0, acerto = 0;
+		int endereco = 0;
+		int i, count = 0, missCache = 0, hitCache = 0, numeroAleatorio, fifo = 0;
 		double total;
+		Random random = new Random();
 
 		ArrayList<String> teste = FileManager.stringReader("./dados/teste_1.txt");
 		for (String linha : teste) {
 			int acesso = Integer.parseInt(linha);
-			int bin[] = intToBinary(acesso, 20);
-			String stringBin = intToBinaryString(acesso, 20);
 
-			valorTag = stringBin.substring(0, tag - 1);
-			bloco = Integer.parseInt(valorTag, 2);
+			endereco = tag + logLinha + 2;
 
-			lCache = bloco / nLinhas;
+			int bin[] = intToBinary(acesso, endereco);
 
-			if (posicoes[lCache] == null) {
-				posicoes[lCache] = valorTag;
-			} else {
+			String stringBin = intToBinaryString(acesso, endereco);
+
+			valorTag = stringBin.substring(0, tag);
+
+			for(i = 0; i < nLinhas; i++) {
+				if(posicoes[i] == null){
+					posicoes[i] = valorTag;
+					break;
+				}else {
+					if(op == 1) {
+						LRU();
+					}else if(op == 2){
+						total = FIFO(posicoes, valorTag, fifo, missCache, hitCache);
+						fifo++;
+						
+					}else if(op == 3){
+						LFU();
+					}else{
+						numeroAleatorio = random.nextInt(nLinhas - 1);
+						if(posicoes[numeroAleatorio].equals(valorTag)){
+							hitCache++;
+						}else {
+							posicoes[numeroAleatorio] = valorTag;
+							missCache++;
+						}
+					}
+				}
+				count++;
 			}
-			count++;
 		}
-		total = (acerto / count) * 100;
-		System.out.println("Precisão: " + total + "%");
+		hitCache = count - missCache;
+		
+		total = (hitCache * 100) / count;
+		System.out.println("Acessos: " + count);
+		System.out.println("MissCache: " + missCache);
+		System.out.println("Precisao: " + total + "%");
 	}
 
+	
+	public void LRU() {
+		int id;
+	}
+	
+	
+	public int FIFO(String []posicoes, String valor, int id, int missCache, int hitCache) {
+		if(posicoes[id].equals(valor)){
+			hitCache++;
+		}else {
+			posicoes[id] = valor;
+			missCache++;
+		}
+		
+		return missCache;
+	}
+	
+	public void LFU() {
+		
+	}
+	
+	
+	
 	public void MostrarInformacoes() {
 		System.out.println("Memoria principal: " + tamanhoMemoria);
 		System.out.println("Memoria cache: " + tamanhoCache);

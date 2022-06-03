@@ -7,7 +7,7 @@ public class Main {
 	public static void main(String[] args) {
 
 		int configs[] = new int[4];
-		int i = 0, tamPrincipal, palavra, linha, tamCache;
+		int i = 0, tamPrincipal, palavra, linha, tamCache, op = 0;
 		
 
 		String[] configText = null;
@@ -33,8 +33,9 @@ public class Main {
 		
 		Cache cache = new Cache(tamPrincipal, tamCache, palavra, linha);
 		
-		cache.MostrarInformacoes();
-		cache.Direto();
+		//cache.MostrarInformacoes();
+		//cache.Direto();
+		//cache.Associativo(op);
 
 		// Converter todas as posições do Array para Int
 		// Cache cache = new Cache(palavra, tamanho, linha);
