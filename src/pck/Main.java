@@ -33,9 +33,11 @@ public class Main {
 		
 		Cache cache = new Cache(tamPrincipal, tamCache, palavra, linha);
 		
+		op = 4;
+		
 		//cache.MostrarInformacoes();
 		//cache.Direto();
-		//cache.Associativo(op);
+		cache.Associativo(op);
 
 		// Converter todas as posições do Array para Int
 		// Cache cache = new Cache(palavra, tamanho, linha);
