@@ -1,6 +1,5 @@
 package pck;
 
-import java.util.ArrayList;
 import java.util.Random;
 
 public class Aleatorio extends Cache {
@@ -8,60 +7,27 @@ public class Aleatorio extends Cache {
 		super(tamMemoria, tamCache, pal, l);
 	}
 
-	public static void Substituir() {
-		int tag = (int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) - 1;
-
-		ValoresAssociativo[] posicoes = new ValoresAssociativo[nLinhas];
-		String valorTag;
-		int i = 0, count = 0, missCache = 0, endereco = 0, valor = 0, op = 0;
-		float total = 0, hitCache = 0;
-
-		ArrayList<String> teste = FileManager.stringReader("./dados/teste_1.txt");
-		for (String linha : teste) {
-			int acesso = Integer.parseInt(linha);
-
-			endereco = tag + 2;
-
-			int bin[] = intToBinary(acesso, endereco);
-
-			String stringBin = intToBinaryString(acesso, endereco);
-
-			valorTag = stringBin.substring(0, tag);
-
-			ValoresAssociativo end = new ValoresAssociativo(valorTag, valor);
-
-			if (i < nLinhas) {
-				posicoes[i] = end;
+	public static int Substituir(ValoresAssociativo[] posicoes, String valorTag, int hit, int tam) {
+		int op = 0;
+		int hitCache = hit;
+		
+		for (int j = 0; j < posicoes.length; j++) {
+			if (posicoes[j].getTag().equals(valorTag)) {
+				op = 1;
+				hitCache++;
+				break;
 			} else {
-				for (int j = 0; j < posicoes.length; j++) {
-					if (posicoes[j].getTag().equals(valorTag)) {
-						op = 1;
-						hitCache++;
-						break;
-					}else {
-						op = 0;
-					}
-				}
-				if (op == 0) {
-					Random random = new Random();
-					int numeroAleatorio = random.nextInt(nLinhas - 1);
-
-					posicoes[numeroAleatorio].setTag(valorTag);
-					missCache++;
-					op = 0;
-
-				}
-
+				op = 0;
 			}
-
-			i++;
-			count++;
 		}
+		if (op == 0) {
+			Random random = new Random();
+			int numeroAleatorio = random.nextInt(tam - 1);
 
-		total = (hitCache * 100) / count;
-		System.out.println("Acessos: " + count);
-		System.out.println("MissCache: " + missCache);
-		System.out.println("HitCache: " + hitCache);
-		System.out.println("Precisao: " + total);
+			posicoes[numeroAleatorio].setTag(valorTag);
+			op = 0;
+
+		}
+		return hitCache;
 	}
 }

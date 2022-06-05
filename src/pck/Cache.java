@@ -1,5 +1,7 @@
 package pck;
 
+import java.util.ArrayList;
+
 public class Cache {
 	protected static int tamanhoCache;
 	protected static int tamanhoMemoria;
@@ -20,11 +22,108 @@ public class Cache {
 	}
 
 	public void Associativo(int op) {
+		int tag = (int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) - 1;
 
-		Aleatorio.Substituir();
+		ValoresAssociativo[] posicoes = new ValoresAssociativo[nLinhas];
+		String valorTag;
+		int i = 0, count = 0, missCache = 0, endereco = 0, valor = 0, hitCache = 0, id = 0;
 
+		ArrayList<String> teste = FileManager.stringReader("./dados/teste_1.txt");
+		for (String linha : teste) {
+			int acesso = Integer.parseInt(linha);
+
+			endereco = tag + 2;
+
+			int bin[] = intToBinary(acesso, endereco);
+
+			String stringBin = intToBinaryString(acesso, endereco);
+
+			valorTag = stringBin.substring(0, tag);
+			ValoresAssociativo end = new ValoresAssociativo(valorTag, valor);
+			if (i < nLinhas) {
+				posicoes[i] = end;
+			} else {
+				if (op == 1) {
+					hitCache = LRU.Substituir(posicoes, valorTag, hitCache);
+				} else if (op == 2) {
+					hitCache = FIFO.Substituir(posicoes, valorTag, hitCache, id);
+					id++;
+				} else if (op == 3) {
+					hitCache = LFU.Substituir(posicoes, valorTag, end, hitCache);
+				} else if (op == 4) {
+					hitCache = Aleatorio.Substituir(posicoes, valorTag, hitCache, nLinhas);
+				}
+			}
+			count++;
+			i++;
+		}
+		missCache = (int) (count - hitCache);
+		mostrarInformacoes(count, hitCache, missCache);
 	}
-	
+
+	public void AssociativoConjunto(int op, int tam) {
+		int endereco = 0;
+		int i = 0, j = 0, nBloco, count = 0, missCache, hitCache = 0, blocos, tag, logBlocos, valor = 0, id = 0;
+
+		blocos = nLinhas / tam;
+		tag = (int) ((int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) + 1 - (Math.log(blocos) / Math.log(2))
+				- 2);
+		logBlocos = (int) (Math.log(blocos) / Math.log(2));
+		ValoresAssociativo[][] posicoes = new ValoresAssociativo[blocos][tam];
+		String valorTag;
+		String valorBloco;
+
+		ArrayList<String> teste = FileManager.stringReader("./dados/teste_1.txt");
+		for (String linha : teste) {
+			int acesso = Integer.parseInt(linha);
+
+			endereco = tag + logBlocos + 2;
+			int bin[] = intToBinary(acesso, endereco);
+
+			String stringBin = intToBinaryString(acesso, endereco);
+
+			valorTag = stringBin.substring(0, tag);
+			valorBloco = stringBin.substring(tag, logBlocos + tag);
+			nBloco = Integer.parseInt(valorBloco, 2);
+
+			ValoresAssociativo end = new ValoresAssociativo(valorTag, valor);
+			for (j = 0; j < tam; j++) {
+				if (posicoes[nBloco][j] == null) {
+					posicoes[nBloco][j] = end;
+				}else {
+					i++;
+				}
+			}
+			if (i != 0) {
+				if (op == 1) {
+					hitCache = LRU.Substituir(posicoes[nBloco], valorTag, hitCache);
+				} else if (op == 2) {
+					hitCache = FIFO.Substituir(posicoes[nBloco], valorTag, hitCache, id);
+					id++;
+				} else if (op == 3) {
+					hitCache = LFU.Substituir(posicoes[nBloco], valorTag, end, hitCache);
+				} else if (op == 4) {
+					hitCache = Aleatorio.Substituir(posicoes[nBloco], valorTag, hitCache, tam);
+				}
+			}
+
+			count++;
+		}
+
+		missCache = (int) (count - hitCache);
+		mostrarInformacoes(count, hitCache, missCache);
+	}
+
+	public void mostrarInformacoes(int count, float hitCache, int missCache) {
+		float total;
+
+		total = (hitCache * 100) / count;
+		System.out.println("Acessos: " + count);
+		System.out.println("MissCache: " + missCache);
+		System.out.println("HitCache: " + hitCache);
+		System.out.println("Precisao: " + total);
+	}
+
 	public static int[] intToBinary(int value, int size) {
 		if (value > Math.pow(2, size) - 1) {
 			return null;

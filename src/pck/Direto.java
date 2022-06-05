@@ -11,7 +11,7 @@ public class Direto extends Cache{
 
 	public static void Substituir() {
 		int tag = (int) (Math.log(tamanhoMemoria / palavra) / Math.log(2)) + 1 - logLinha - 2;
-
+		System.out.println(tag);
 		String[] posicoes = new String[nLinhas];
 		String valorTag;
 		String valorLinha;

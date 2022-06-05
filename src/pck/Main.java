@@ -35,11 +35,7 @@ public class Main {
 		
 		op = 4;
 		
-		//cache.MostrarInformacoes();
 		//cache.Direto();
 		cache.Associativo(op);
-
-		// Converter todas as posições do Array para Int
-		// Cache cache = new Cache(palavra, tamanho, linha);
 	}
 }
